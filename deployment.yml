@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: kayak-service
+  labels:
+    app: kayak-service
+spec:
+  ports:
+    - name: http
+      port: 8000
+  selector:
+    app: kayak-service
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: kayak-service
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: kayak-service
+        version: v1
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8000"
+    spec:
+      containers:
+        - name: kayak-app
+          image: petecknight/topo:6.0.0
+          env:
+            - name: MONGODB_HOST
+              value: 192.168.5.31
+          ports:
+            - containerPort: 8000
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8000
+            initialDelaySeconds: 20
+            periodSeconds: 5
