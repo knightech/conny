@@ -31,3 +31,4 @@ spec:
             port:
               number: 8000
             host: kayak-service
+

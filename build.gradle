@@ -1,44 +1,30 @@
-plugins {
-	id 'org.springframework.boot' version '2.1.2.RELEASE'
-	id 'java'
-}
-
-apply plugin: 'io.spring.dependency-management'
-
-group = 'com.okta.spring'
-version = '0.0.5-SNAPSHOT'
-sourceCompatibility = '1.8'
-
-
-ext {
-	confluentVersion='5.2.1'
-	kafkaVersion = '2.2.0'
-	jacksonVersion='2.9.9'
-	kafkaScalaVersion='2.12'
-	scalaTestVersion='2.2.0-cp2'
-}
+apply plugin: "java"
 
 repositories {
 	mavenCentral()
+	maven { url 'https://jitpack.io' }
 	maven { url 'https://repo.spring.io/snapshot' }
 	maven { url 'https://repo.spring.io/milestone' }
 	maven { url 'https://packages.confluent.io/maven' }
 }
 
-List kafka = ["org.apache.kafka:kafka-clients:${kafkaVersion}"
-			  , "org.apache.kafka:kafka-streams:${kafkaVersion}"
-//			  , "io.confluent:monitoring-interceptors:${confluentVersion}"
-]
+configurations {
+	mysql
+	spooldir
+}
 
 dependencies {
-	compile kafka
-	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb-reactive'
-	implementation 'org.springframework.boot:spring-boot-starter-webflux'
-	compile "org.springframework.boot:spring-boot-starter-actuator"
-	compile "io.micrometer:micrometer-registry-prometheus"
-//	compile 'de.flapdoodle.embed:de.flapdoodle.embed.mongo'
-	
-	compileOnly 'org.projectlombok:lombok'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testImplementation 'io.projectreactor:reactor-test'
+	mysql "mysql:mysql-connector-java:8.0.17"
+	spooldir "com.github.jcustenborder:kafka-connect-spooldir:1.0.41"
 }
+
+task copyMysql(type: Copy) {
+	from configurations.mysql
+	into "$buildDir/mysql"
+}
+
+task copySpooldir(type: Copy) {
+	from configurations.spooldir
+	into "$buildDir/spooldir"
+}
+
